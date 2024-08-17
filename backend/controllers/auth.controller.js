@@ -1,8 +1,14 @@
 import { User } from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { generateVerificationToken } from '../utils/generateVerificationToken.js';
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
-import { sendVerificationEmail, sendWelcomeEmail } from '../mailtrap/emails.js';
+import {
+    sendVerificationEmail,
+    sendWelcomeEmail,
+    sendPasswordResetEmail,
+    sendPasswordResetSuccessEmail,
+} from '../mailtrap/emails.js';
 import {
     validateSigninInput,
     findUserByEmail,
@@ -17,6 +23,20 @@ export const getAllUsers = async (req, res) => {
         return res.status(200).json({ success: true, users });
     } catch (error) {
         console.log('error in getAllUsers', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const checkAuth = async (req, res) => {
+    const { userId } = req;
+    try {
+        const user = await User.findById(userId).select('-password');
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'User not found' });
+        }
+        return res.status(200).json({ success: true, user });
+    } catch (error) {
+        console.log('error in checkAuth', error);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -129,7 +149,6 @@ export const signin = async (req, res) => {
     generateTokenAndSetCookie(res, user._id);
 
     user.lastLogin = Date.now();
-    user.isVerified = undefined;
 
     await user.save();
 
@@ -139,6 +158,7 @@ export const signin = async (req, res) => {
         user: {
             ...user._doc,
             password: undefined,
+            isVerified: undefined,
         },
     });
 };
@@ -171,4 +191,77 @@ export const signin = [
 export const signout = (req, res) => {
     res.clearCookie('token');
     res.status(200).json({ success: true, message: 'Signout successfully' });
+};
+
+export const forgetPassword = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'User does not exist' });
+        }
+
+        const resetPasswordToken = crypto.randomBytes(20).toString('hex');
+        const resetPasswordExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
+
+        user.resetPasswordToken = resetPasswordToken;
+        user.resetPasswordExpiresAt = resetPasswordExpiresAt;
+
+        await user.save();
+
+        await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetPasswordToken}`);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Reset password email sent successfully',
+            user: {
+                ...user._doc,
+                password: undefined,
+                isVerified: undefined,
+            },
+        });
+    } catch (error) {
+        console.log('error in forgetPassword', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpiresAt: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Password reset token is invalid or has expired' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpiresAt = undefined;
+
+        await user.save();
+
+        await sendPasswordResetSuccessEmail(user.email);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Password reset successfully',
+            user: {
+                ...user._doc,
+                password: undefined,
+                isVerified: undefined,
+            },
+        });
+    } catch (error) {
+        console.log('error in resetPassword', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
 };
