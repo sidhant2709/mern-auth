@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
 
 import Input from '../components/Input';
-import { useAusthStore } from '../store/authStore';
+import { useAuthStore } from '../store/authStore';
 
 const SignUpPage = () => {
     const {
@@ -25,12 +25,12 @@ const SignUpPage = () => {
 
     const navigate = useNavigate();
 
-    const { signup, error, isLoading } = useAusthStore();
+    const { signup, error, isLoading } = useAuthStore();
 
     const onSubmit = async (data) => {
         try {
             await signup(data.email, data.password, data.name);
-            navigate('/');
+            navigate('/verify-email');
         } catch (error) {
             console.log(error);
         }
@@ -63,7 +63,7 @@ const SignUpPage = () => {
                             required: 'Email is required',
                             pattern: {
                                 value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                                message: 'Invalid email address',
+                                message: 'Please enter a valid email',
                             },
                         })}
                         errors={errors}
@@ -95,7 +95,7 @@ const SignUpPage = () => {
                 <p className="text-sm text-gray-400">
                     Already have an account?{' '}
                     <Link to={'/signin'} className="text-green-400 hover:underline">
-                        Signin
+                        Sign In
                     </Link>
                 </p>
             </div>
