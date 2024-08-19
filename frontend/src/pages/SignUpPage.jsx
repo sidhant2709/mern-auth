@@ -29,8 +29,8 @@ const SignUpPage = () => {
 
     const onSubmit = async (data) => {
         try {
-            await signup(data.email, data.password, data.name);
-            navigate('/verify-email');
+            const res = await signup(data.email, data.password, data.name);
+            navigate('/verify-email', { state: { token: res.verificationToken } });
         } catch (error) {
             console.log(error);
         }

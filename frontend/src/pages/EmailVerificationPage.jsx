@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
@@ -8,6 +8,8 @@ const EmailVerificationPage = () => {
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
     const navigate = useNavigate();
+    const location = useLocation();
+    const { token } = location.state || {};
 
     const { error, isLoading, verifyEmail } = useAuthStore();
 
@@ -71,7 +73,7 @@ const EmailVerificationPage = () => {
                     Verify Your Email
                 </h2>
                 <p className="text-center text-gray-300 mb-6">Enter the 6-digit code sent to your email address.</p>
-
+                {token && <p className="text-center text-gray-300 mb-6">Verification code: {token}</p>}
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="flex justify-between">
                         {code.map((digit, index) => (
