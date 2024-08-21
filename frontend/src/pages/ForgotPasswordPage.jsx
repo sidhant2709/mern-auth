@@ -3,21 +3,20 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import Input from '../components/Input';
 import { ArrowLeft, Loader, Mail } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const location = useLocation();
-    const { resetPasswordToken } = location.state || {};
+    const [resetPasswordToken, setResetPasswordToken] = useState('');
 
     const { isLoading, forgotPassword } = useAuthStore();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await forgotPassword(email);
-        console.log(resetPasswordToken);
+        const res = await forgotPassword(email);
+        setResetPasswordToken(res.resetPasswordToken);
         setIsSubmitted(true);
     };
 
@@ -67,6 +66,19 @@ const ForgotPasswordPage = () => {
                         <p className="text-gray-300 mb-6">
                             If an account exists for {email}, you will receive a password reset link shortly.
                         </p>
+                        <p className="text-center text-gray-300 mb-6">
+                            <i>
+                                You are getting the <strong className="text-red-500 mb-6">reset password link</strong>{' '}
+                                here because <strong className="text-red-500 mb-6">Mailtrap</strong> is a paid platform
+                                and supports only one email address.
+                            </i>
+                        </p>
+                        <Link
+                            to={`/reset-password/${resetPasswordToken}`}
+                            className="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
+                        >
+                            Reset Password Link
+                        </Link>
                     </div>
                 )}
             </div>

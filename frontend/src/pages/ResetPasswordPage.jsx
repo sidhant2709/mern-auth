@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 const ResetPasswordPage = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const { resetPassword, error, isLoading, message } = useAuthStore();
 
     const { token } = useParams();
@@ -23,9 +24,10 @@ const ResetPasswordPage = () => {
         }
         try {
             await resetPassword(token, password);
-
+            setLoading(true);
             toast.success('Password reset successfully, redirecting to signin page...');
             setTimeout(() => {
+                setLoading(false);
                 navigate('/signin');
             }, 2000);
         } catch (error) {
@@ -72,9 +74,9 @@ const ResetPasswordPage = () => {
                         whileTap={{ scale: 0.98 }}
                         className="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isLoading || loading}
                     >
-                        {isLoading ? 'Resetting...' : 'Set New Password'}
+                        {isLoading || loading ? 'Resetting...' : 'Set New Password'}
                     </motion.button>
                 </form>
             </div>

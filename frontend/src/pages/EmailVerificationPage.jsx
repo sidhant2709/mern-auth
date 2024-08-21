@@ -74,6 +74,13 @@ const EmailVerificationPage = () => {
                     Verify Your Email
                 </h2>
                 <p className="text-center text-gray-300 mb-6">Enter the 6-digit code sent to your email address.</p>
+                <p className="text-center text-gray-300 mb-6">
+                    <i>
+                        You are getting the <strong className="text-red-500 mb-6">token</strong> here because{' '}
+                        <strong className="text-red-500 mb-6">Mailtrap</strong> is a paid platform and supports only one
+                        email address.
+                    </i>
+                </p>
                 {token && <p className="text-center text-gray-300 mb-6">Verification code: {token}</p>}
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="flex justify-between">
