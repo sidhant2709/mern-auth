@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { Loader, Lock, Mail } from 'lucide-react';
@@ -22,7 +23,7 @@ const SignInPage = () => {
 
     const navigate = useNavigate();
 
-    const { signin, error, isLoading } = useAuthStore();
+    const { signin, error, isLoading, clearError } = useAuthStore();
 
     const onSubmit = async (data) => {
         try {
@@ -32,6 +33,10 @@ const SignInPage = () => {
             console.log(error);
         }
     };
+
+    useEffect(() => {
+        clearError();
+    }, [clearError]);
 
     return (
         <motion.div

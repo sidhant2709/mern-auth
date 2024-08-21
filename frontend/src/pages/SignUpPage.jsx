@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { Loader, Lock, Mail, User } from 'lucide-react';
@@ -25,7 +26,7 @@ const SignUpPage = () => {
 
     const navigate = useNavigate();
 
-    const { signup, error, isLoading } = useAuthStore();
+    const { signup, error, isLoading, clearError } = useAuthStore();
 
     const onSubmit = async (data) => {
         try {
@@ -35,6 +36,10 @@ const SignUpPage = () => {
             console.log(error);
         }
     };
+
+    useEffect(() => {
+        clearError();
+    }, [clearError]);
 
     return (
         <motion.div

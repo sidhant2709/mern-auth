@@ -22,7 +22,7 @@ router.post('/signin', signin);
 router.post('/signout', signout);
 
 router.post('/verify-email', verifyEmail);
-router.post('/forget-password', forgetPassword);
+router.post('/forgot-password', forgetPassword);
 router.post('/reset-password/:token', resetPassword);
 
 export default router;

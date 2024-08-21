@@ -182,7 +182,6 @@ export const signin = [
             user: {
                 ...user._doc,
                 password: undefined,
-                isVerified: undefined,
             },
         });
     },
@@ -218,7 +217,6 @@ export const forgetPassword = async (req, res) => {
             user: {
                 ...user._doc,
                 password: undefined,
-                isVerified: undefined,
             },
         });
     } catch (error) {
@@ -257,7 +255,6 @@ export const resetPassword = async (req, res) => {
             user: {
                 ...user._doc,
                 password: undefined,
-                isVerified: undefined,
             },
         });
     } catch (error) {
